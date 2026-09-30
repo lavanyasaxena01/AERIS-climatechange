@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: #050807;
+    color: #e2e8f0;
+  }
+
+  code, pre, .font-mono {
+    font-family: var(--font-mono);
+  }
+}
+
+/* Custom Scrollbar for scientific intelligence density */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #08110d;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #153224;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #10b981;
+}
+
+/* Leaflet dark theme customizations */
+.leaflet-container {
+  background-color: #050807 !important;
+  font-family: var(--font-sans) !important;
+}
+
+.leaflet-bar a {
+  background-color: #0d1a14 !important;
+  color: #e2e8f0 !important;
+  border-color: #1e3a2b !important;
+}
+
+.leaflet-bar a:hover {
+  background-color: #153224 !important;
+  color: #34d399 !important;
+}
+
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+  background: #08110d !important;
+  color: #e2e8f0 !important;
+  border: 1px solid #1e3a2b;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.7);
+}
