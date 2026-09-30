@@ -24,7 +24,7 @@ export default function App() {
   const [showProcessingModal, setShowProcessingModal] = useState(false);
   const [presentationOpen, setPresentationOpen] = useState(false);
 
-  // Attempt to fetch regions from backend if available
+  // Attempt to fetch regions from backend if available while preserving bundled image assets
   useEffect(() => {
     fetch('/api/regions')
       .then((res) => {
@@ -33,9 +33,18 @@ export default function App() {
       })
       .then((data: RegionData[]) => {
         if (Array.isArray(data) && data.length > 0) {
-          setRegions(data);
-          const current = data.find((r) => r.id === selectedRegion.id) || data[0];
-          setSelectedRegion(current);
+          setRegions((prev) =>
+            prev.map((local) => {
+              const remote = data.find((r) => r.id === local.id);
+              if (!remote) return local;
+              return {
+                ...remote,
+                opticalBeforeUrl: local.opticalBeforeUrl,
+                opticalAfterUrl: local.opticalAfterUrl,
+                sarUrl: local.sarUrl,
+              };
+            })
+          );
         }
       })
       .catch((err) => {
@@ -43,9 +52,32 @@ export default function App() {
       });
   }, []);
 
-  const handleTriggerAnalysis = () => {
+  const handleTriggerAnalysis = async () => {
     setShowProcessingModal(true);
     setIsAnalyzing(true);
+    try {
+      const res = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ regionId: selectedRegion.id }),
+      });
+      if (res.ok) {
+        const analysis = await res.json();
+        setSelectedRegion((prev) => ({
+          ...prev,
+          metrics: {
+            ...prev.metrics,
+            changedAreaKm2: analysis.change?.area_km2 ?? prev.metrics.changedAreaKm2,
+            changedPercentage: analysis.change?.percentage ?? prev.metrics.changedPercentage,
+            floodAreaKm2: analysis.flood?.area_km2 ?? prev.metrics.floodAreaKm2,
+            riskScore: analysis.risk?.score ?? prev.metrics.riskScore,
+            riskLevel: analysis.risk?.level ?? prev.metrics.riskLevel,
+          },
+        }));
+      }
+    } catch (e) {
+      console.warn('API analyze call fallback:', e);
+    }
   };
 
   const handleProcessingComplete = () => {

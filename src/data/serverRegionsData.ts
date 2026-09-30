@@ -1,15 +1,4 @@
 import { RegionData } from '../types/climate';
-import globe from '../assets/images/aeris_satellite_globe_1790727396340.jpg';
-import opticalBefore from '../assets/images/satellite_optical_before_1790727410023.jpg';
-import opticalAfter from '../assets/images/satellite_optical_after_1790727422696.jpg';
-import sarFlood from '../assets/images/satellite_sar_flood_1790727433939.jpg';
-
-export const ASSETS = {
-  globe,
-  opticalBefore,
-  opticalAfter,
-  sarFlood,
-};
 
 export const CLIMATE_REGIONS: RegionData[] = [
   {
@@ -17,7 +6,7 @@ export const CLIMATE_REGIONS: RegionData[] = [
     name: 'Indus River Basin (Sindh / Balochistan)',
     country: 'Pakistan',
     biome: 'Alluvial Riverine & Semiarid Agricultural Basin',
-    center: [27.558, 68.212], // Lat, Lng
+    center: [27.558, 68.212],
     zoom: 9,
     bounds: {
       north: 28.15,
@@ -40,12 +29,9 @@ export const CLIMATE_REGIONS: RegionData[] = [
     baselineDate: '2024-05-10',
     eventDate: '2024-09-18',
     description: 'Catastrophic monsoon runoff and river breach resulting in prolonged inundation of alluvial agricultural plains, displacement of vulnerable rural populations, and complete submergence of Kharif cotton and rice harvests.',
-    opticalBeforeUrl: ASSETS.opticalBefore,
-    opticalAfterUrl: ASSETS.opticalAfter,
-    sarUrl: ASSETS.sarFlood,
-    before_image_url: ASSETS.opticalBefore,
-    after_image_url: ASSETS.opticalAfter,
-    sar_image_url: ASSETS.sarFlood,
+    opticalBeforeUrl: '',
+    opticalAfterUrl: '',
+    sarUrl: '',
     metrics: {
       totalAreaKm2: 12400.0,
       changedAreaKm2: 2938.8,
@@ -106,12 +92,9 @@ export const CLIMATE_REGIONS: RegionData[] = [
     baselineDate: '2023-09-15',
     eventDate: '2024-09-22',
     description: 'Rapid frontier forest conversion and selective logging corridor expansion adjacent to the BR-163 transit artery, exacerbating regional evapotranspiration collapse and wildland fire susceptibility.',
-    opticalBeforeUrl: ASSETS.opticalBefore,
-    opticalAfterUrl: ASSETS.opticalAfter,
-    sarUrl: ASSETS.sarFlood,
-    before_image_url: ASSETS.opticalBefore,
-    after_image_url: ASSETS.opticalAfter,
-    sar_image_url: ASSETS.sarFlood,
+    opticalBeforeUrl: '',
+    opticalAfterUrl: '',
+    sarUrl: '',
     metrics: {
       totalAreaKm2: 8900.0,
       changedAreaKm2: 1424.0,
@@ -172,12 +155,9 @@ export const CLIMATE_REGIONS: RegionData[] = [
     baselineDate: '2024-06-01',
     eventDate: '2024-09-25',
     description: 'High-tide storm surge compounding upstream dam discharges, causing seasonal deep-water inundation of low-lying polders and intensifying salinity wedge intrusion downstream.',
-    opticalBeforeUrl: ASSETS.opticalBefore,
-    opticalAfterUrl: ASSETS.opticalAfter,
-    sarUrl: ASSETS.sarFlood,
-    before_image_url: ASSETS.opticalBefore,
-    after_image_url: ASSETS.opticalAfter,
-    sar_image_url: ASSETS.sarFlood,
+    opticalBeforeUrl: '',
+    opticalAfterUrl: '',
+    sarUrl: '',
     metrics: {
       totalAreaKm2: 9500.0,
       changedAreaKm2: 1710.0,
@@ -238,12 +218,9 @@ export const CLIMATE_REGIONS: RegionData[] = [
     baselineDate: '2023-10-01',
     eventDate: '2024-09-12',
     description: 'Severe open-water surface contraction driven by recurrent precipitation deficits, elevated evaporative demand, and heavy upstream irrigation withdrawals along the Chari-Logone river system.',
-    opticalBeforeUrl: ASSETS.opticalBefore,
-    opticalAfterUrl: ASSETS.opticalAfter,
-    sarUrl: ASSETS.sarFlood,
-    before_image_url: ASSETS.opticalBefore,
-    after_image_url: ASSETS.opticalAfter,
-    sar_image_url: ASSETS.sarFlood,
+    opticalBeforeUrl: '',
+    opticalAfterUrl: '',
+    sarUrl: '',
     metrics: {
       totalAreaKm2: 15800.0,
       changedAreaKm2: 3476.0,
@@ -304,12 +281,9 @@ export const CLIMATE_REGIONS: RegionData[] = [
     baselineDate: '2024-08-15',
     eventDate: '2024-09-20',
     description: 'Extreme multi-day precipitation from Storm Boris generating peak crest flows exceeding 100-year recurrence intervals across the middle Danube, inundating designated polders and riverside towns.',
-    opticalBeforeUrl: ASSETS.opticalBefore,
-    opticalAfterUrl: ASSETS.opticalAfter,
-    sarUrl: ASSETS.sarFlood,
-    before_image_url: ASSETS.opticalBefore,
-    after_image_url: ASSETS.opticalAfter,
-    sar_image_url: ASSETS.sarFlood,
+    opticalBeforeUrl: '',
+    opticalAfterUrl: '',
+    sarUrl: '',
     metrics: {
       totalAreaKm2: 6800.0,
       changedAreaKm2: 816.0,

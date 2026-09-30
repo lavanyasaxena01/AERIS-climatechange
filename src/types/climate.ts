@@ -26,6 +26,12 @@ export interface RegionData {
   opticalAfterUrl: string;
   sarUrl: string;
   changeMaskUrl?: string;
+  probabilityUrl?: string;
+  before_image_url?: string;
+  after_image_url?: string;
+  sar_image_url?: string;
+  change_mask_url?: string;
+  probability_url?: string;
   metrics: {
     totalAreaKm2: number;
     changedAreaKm2: number;
@@ -72,6 +78,11 @@ export interface AnalysisResponse {
   analysis_date: string;
   data_source: string;
   is_demo: boolean;
+  before_image_url?: string;
+  after_image_url?: string;
+  sar_image_url?: string;
+  change_mask_url?: string;
+  probability_url?: string;
   change: {
     area_km2: number;
     percentage: number;

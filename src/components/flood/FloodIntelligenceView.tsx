@@ -3,6 +3,7 @@ import { RegionData } from '../../types/climate';
 import { GlassCard } from '../common/GlassCard';
 import { MetricCard } from '../common/MetricCard';
 import { ClimateRiskBadge } from '../common/ClimateRiskBadge';
+import { getAssetUrl, logImageError } from '../../lib/assetUrl';
 import {
   Waves,
   Radio,
@@ -14,6 +15,7 @@ import {
   ArrowUpRight,
   Droplets,
   AlertTriangle,
+  Loader2,
 } from 'lucide-react';
 
 interface FloodIntelligenceViewProps {
@@ -22,6 +24,16 @@ interface FloodIntelligenceViewProps {
 
 export const FloodIntelligenceView: React.FC<FloodIntelligenceViewProps> = ({ region }) => {
   const [activeViewMode, setActiveViewMode] = useState<'sar' | 'optical' | 'mask'>('sar');
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [imgError, setImgError] = useState(false);
+
+  const currentImgUrl = getAssetUrl(
+    activeViewMode === 'sar'
+      ? region.sarUrl
+      : activeViewMode === 'optical'
+      ? region.opticalAfterUrl
+      : region.opticalAfterUrl
+  );
 
   return (
     <div className="space-y-6">
@@ -136,28 +148,40 @@ export const FloodIntelligenceView: React.FC<FloodIntelligenceViewProps> = ({ re
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         <div className="lg:col-span-8 space-y-3">
           <div className="relative rounded-xl overflow-hidden border border-emerald-950/80 bg-[#06100b] h-[440px]">
-            {activeViewMode === 'sar' && (
+            {imgError ? (
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-[#07130e]">
+                <AlertTriangle className="w-8 h-8 text-cyan-400 mb-2" />
+                <div className="text-xs font-mono font-bold text-white uppercase">Satellite Layer Unavailable</div>
+                <div className="text-[11px] font-mono text-slate-400 mt-1 max-w-sm truncate">{currentImgUrl}</div>
+                <button
+                  onClick={() => { setImgError(false); setImgLoaded(false); }}
+                  className="mt-3 px-3 py-1 bg-cyan-900/60 hover:bg-cyan-800/60 border border-cyan-500/40 text-cyan-300 text-xs font-mono rounded cursor-pointer"
+                >
+                  Retry Loading
+                </button>
+              </div>
+            ) : (
               <img
-                src={region.sarUrl}
-                alt="Sentinel-1 SAR Radar Imagery"
-                className="w-full h-full object-cover"
+                src={currentImgUrl}
+                alt="Satellite Observation Layer"
+                className="w-full h-full object-cover transition-opacity duration-300"
+                style={{ opacity: imgLoaded ? (activeViewMode === 'mask' ? 0.75 : 1) : 0 }}
+                onLoad={() => setImgLoaded(true)}
+                onError={(e) => {
+                  setImgError(true);
+                  logImageError('FloodIntelligenceView', currentImgUrl, e);
+                }}
               />
             )}
-            {activeViewMode === 'optical' && (
-              <img
-                src={region.opticalAfterUrl}
-                alt="Sentinel-2 Optical Post-Flood"
-                className="w-full h-full object-cover"
-              />
+
+            {activeViewMode === 'mask' && !imgError && (
+              <div className="absolute inset-0 bg-cyan-500/35 mix-blend-color-dodge pointer-events-none" />
             )}
-            {activeViewMode === 'mask' && (
-              <div className="relative w-full h-full">
-                <img
-                  src={region.opticalAfterUrl}
-                  alt="Flood Mask Overlay"
-                  className="w-full h-full object-cover brightness-75"
-                />
-                <div className="absolute inset-0 bg-cyan-500/35 mix-blend-color-dodge pointer-events-none" />
+
+            {!imgLoaded && !imgError && (
+              <div className="absolute inset-0 flex items-center justify-center bg-[#050b08]/80 text-cyan-400 font-mono text-xs gap-2">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span>LOADING SATELLITE SENSOR DATA...</span>
               </div>
             )}
 

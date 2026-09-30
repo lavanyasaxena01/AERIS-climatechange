@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { RegionData } from '../../types/climate';
 import { GlassCard } from '../common/GlassCard';
 import { MetricCard } from '../common/MetricCard';
+import { getAssetUrl, logImageError } from '../../lib/assetUrl';
 import {
   Droplets,
   Activity,
@@ -10,6 +11,8 @@ import {
   TrendingUp,
   TrendingDown,
   Info,
+  AlertTriangle,
+  Loader2,
 } from 'lucide-react';
 
 interface WaterViewProps {
@@ -18,6 +21,10 @@ interface WaterViewProps {
 
 export const WaterView: React.FC<WaterViewProps> = ({ region }) => {
   const isExpansion = region.metrics.ndwiChangePercent > 0;
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [imgError, setImgError] = useState(false);
+
+  const resolvedUrl = getAssetUrl(region.opticalAfterUrl);
 
   return (
     <div className="space-y-6">
@@ -74,13 +81,41 @@ export const WaterView: React.FC<WaterViewProps> = ({ region }) => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         <div className="lg:col-span-8 space-y-3">
           <div className="relative rounded-xl overflow-hidden border border-emerald-950/80 bg-[#06100b] h-[440px]">
-            <img
-              src={region.opticalAfterUrl}
-              alt="Hydrological Satellite View"
-              className="w-full h-full object-cover"
-            />
+            {imgError ? (
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-[#07130e]">
+                <AlertTriangle className="w-8 h-8 text-blue-400 mb-2" />
+                <div className="text-xs font-mono font-bold text-white uppercase">Hydrological Tile Unavailable</div>
+                <div className="text-[11px] font-mono text-slate-400 mt-1 max-w-sm truncate">{resolvedUrl}</div>
+                <button
+                  onClick={() => { setImgError(false); setImgLoaded(false); }}
+                  className="mt-3 px-3 py-1 bg-blue-900/60 hover:bg-blue-800/60 border border-blue-500/40 text-blue-300 text-xs font-mono rounded cursor-pointer"
+                >
+                  Retry Loading
+                </button>
+              </div>
+            ) : (
+              <img
+                src={resolvedUrl}
+                alt="Hydrological Satellite View"
+                className="w-full h-full object-cover transition-opacity duration-300"
+                style={{ opacity: imgLoaded ? 1 : 0 }}
+                onLoad={() => setImgLoaded(true)}
+                onError={(e) => {
+                  setImgError(true);
+                  logImageError('WaterView', resolvedUrl, e);
+                }}
+              />
+            )}
+
+            {!imgLoaded && !imgError && (
+              <div className="absolute inset-0 flex items-center justify-center bg-[#050b08]/80 text-blue-400 font-mono text-xs gap-2">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span>MEASURING NEAR-INFRARED ABSORPTION COEFFICIENTS...</span>
+              </div>
+            )}
+
             {/* NDWI Water Shading Mask */}
-            <div className="absolute inset-0 bg-blue-600/30 mix-blend-color pointer-events-none" />
+            {!imgError && <div className="absolute inset-0 bg-blue-600/30 mix-blend-color pointer-events-none" />}
 
             <div className="absolute bottom-3 left-3 z-10 bg-[#08130e]/95 backdrop-blur-md border border-emerald-900/60 rounded-lg p-3 text-xs font-mono">
               <div className="text-slate-200 font-bold mb-1">NDWI THRESHOLD CRITERIA</div>

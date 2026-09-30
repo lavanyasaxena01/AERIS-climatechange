@@ -117,8 +117,16 @@ export const ChangeDetectionView: React.FC<ChangeDetectionViewProps> = ({ region
       {/* Main Interactive Before/After Slider */}
       <div className="space-y-4">
         <BeforeAfterSlider
-          beforeUrl={selectedDisplayMode === 'sar' ? region.sarUrl : region.opticalBeforeUrl}
-          afterUrl={selectedDisplayMode === 'sar' ? region.opticalAfterUrl : region.opticalAfterUrl}
+          beforeUrl={
+            selectedDisplayMode === 'sar'
+              ? region.sarUrl || `/outputs/${region.id}/sar.png`
+              : region.opticalBeforeUrl || `/outputs/${region.id}/before.png`
+          }
+          afterUrl={
+            selectedDisplayMode === 'fusion'
+              ? region.changeMaskUrl || `/outputs/${region.id}/change_mask.png`
+              : region.opticalAfterUrl || `/outputs/${region.id}/after.png`
+          }
           beforeLabel={
             selectedDisplayMode === 'sar'
               ? `SENTINEL-1 SAR MICROWAVE (${region.baselineDate})`
@@ -127,11 +135,14 @@ export const ChangeDetectionView: React.FC<ChangeDetectionViewProps> = ({ region
           afterLabel={
             selectedDisplayMode === 'sar'
               ? `POST-EVENT OPTICAL OVERLAY (${region.eventDate})`
+              : selectedDisplayMode === 'fusion'
+              ? `GATED FUSION CHANGE MASK (${region.eventDate})`
               : `POST-EVENT ANOMALY (${region.eventDate})`
           }
           changedAreaKm2={effectiveChangedArea}
           changedPercent={effectivePercent}
           confidence={region.metrics.confidence}
+          changeMaskUrl={region.changeMaskUrl || `/outputs/${region.id}/change_mask.png`}
         />
       </div>
 

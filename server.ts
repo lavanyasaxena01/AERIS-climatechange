@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
-import { CLIMATE_REGIONS } from './src/data/regionsData';
+import { CLIMATE_REGIONS } from './src/data/serverRegionsData';
 import { calculateClimateRisk } from './src/lib/riskEngine';
 import { generateClimateReasoning } from './src/server/gemini';
 import { AnalysisResponse } from './src/types/climate';
@@ -18,6 +18,22 @@ const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 async function startServer() {
   const app = express();
   app.use(express.json({ limit: '10mb' }));
+
+  // Enable CORS for all incoming requests (crucial for iframe & external preview environments)
+  app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    if (req.method === 'OPTIONS') {
+      return res.sendStatus(200);
+    }
+    next();
+  });
+
+  // Explicitly mount static directories so satellite imagery and raster outputs are served over HTTP
+  app.use('/outputs', express.static(path.resolve(__dirname, 'public/outputs')));
+  app.use('/assets', express.static(path.resolve(__dirname, 'public/assets')));
+  app.use(express.static(path.resolve(__dirname, 'dist')));
 
   // GET /health
   app.get('/health', (_req, res) => {
@@ -76,6 +92,11 @@ async function startServer() {
         analysis_date: new Date().toISOString(),
         data_source: `${region.sensorPlatforms.join(' + ')} (Demo Dataset)`,
         is_demo: true,
+        before_image_url: region.before_image_url || `/outputs/${region.id}/before.png`,
+        after_image_url: region.after_image_url || `/outputs/${region.id}/after.png`,
+        sar_image_url: region.sar_image_url || `/outputs/${region.id}/sar.png`,
+        change_mask_url: region.change_mask_url || `/outputs/${region.id}/change_mask.png`,
+        probability_url: region.probability_url || `/outputs/${region.id}/probability.png`,
         change: {
           area_km2: region.metrics.changedAreaKm2,
           percentage: region.metrics.changedPercentage,
@@ -141,10 +162,17 @@ async function startServer() {
         detection_confidence: region.metrics.confidence,
         coherence_loss: 0.74,
       },
+      before_image_url: region.before_image_url || `/outputs/${region.id}/before.png`,
+      after_image_url: region.after_image_url || `/outputs/${region.id}/after.png`,
+      sar_image_url: region.sar_image_url || `/outputs/${region.id}/sar.png`,
+      change_mask_url: region.change_mask_url || `/outputs/${region.id}/change_mask.png`,
+      probability_url: region.probability_url || `/outputs/${region.id}/probability.png`,
       layers: {
-        optical_before: region.opticalBeforeUrl,
-        optical_after: region.opticalAfterUrl,
-        sar_backscatter: region.sarUrl,
+        optical_before: region.opticalBeforeUrl || `/outputs/${region.id}/before.png`,
+        optical_after: region.opticalAfterUrl || `/outputs/${region.id}/after.png`,
+        sar_backscatter: region.sarUrl || `/outputs/${region.id}/sar.png`,
+        change_mask: region.changeMaskUrl || `/outputs/${region.id}/change_mask.png`,
+        probability: region.probabilityUrl || `/outputs/${region.id}/probability.png`,
       },
     });
   });

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { RegionData } from '../../types/climate';
 import { GlassCard } from '../common/GlassCard';
 import { MetricCard } from '../common/MetricCard';
+import { getAssetUrl, logImageError } from '../../lib/assetUrl';
 import {
   Trees,
   TrendingDown,
@@ -11,6 +12,8 @@ import {
   AlertOctagon,
   CheckCircle2,
   Info,
+  AlertTriangle,
+  Loader2,
 } from 'lucide-react';
 
 interface VegetationViewProps {
@@ -19,6 +22,10 @@ interface VegetationViewProps {
 
 export const VegetationView: React.FC<VegetationViewProps> = ({ region }) => {
   const [selectedDisplay, setSelectedDisplay] = useState<'ndvi' | 'loss' | 'optical'>('ndvi');
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [imgError, setImgError] = useState(false);
+
+  const resolvedUrl = getAssetUrl(region.opticalAfterUrl);
 
   // NDVI interpretation status
   let healthCategory: 'Stable' | 'Improving' | 'Declining' | 'Severe decline' = 'Stable';
@@ -127,17 +134,44 @@ export const VegetationView: React.FC<VegetationViewProps> = ({ region }) => {
         {/* Left: Simulated NDVI Spectral Raster Canvas */}
         <div className="lg:col-span-8 space-y-3">
           <div className="relative rounded-xl overflow-hidden border border-emerald-950/80 bg-[#06100b] h-[440px]">
-            <img
-              src={region.opticalAfterUrl}
-              alt="Vegetation Satellite Imagery"
-              className="w-full h-full object-cover"
-            />
+            {imgError ? (
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-[#07130e]">
+                <AlertTriangle className="w-8 h-8 text-rose-400 mb-2" />
+                <div className="text-xs font-mono font-bold text-white uppercase">Vegetation Tile Unavailable</div>
+                <div className="text-[11px] font-mono text-slate-400 mt-1 max-w-sm truncate">{resolvedUrl}</div>
+                <button
+                  onClick={() => { setImgError(false); setImgLoaded(false); }}
+                  className="mt-3 px-3 py-1 bg-emerald-900/60 hover:bg-emerald-800/60 border border-emerald-500/40 text-emerald-300 text-xs font-mono rounded cursor-pointer"
+                >
+                  Retry Loading
+                </button>
+              </div>
+            ) : (
+              <img
+                src={resolvedUrl}
+                alt="Vegetation Satellite Imagery"
+                className="w-full h-full object-cover transition-opacity duration-300"
+                style={{ opacity: imgLoaded ? 1 : 0 }}
+                onLoad={() => setImgLoaded(true)}
+                onError={(e) => {
+                  setImgError(true);
+                  logImageError('VegetationView', resolvedUrl, e);
+                }}
+              />
+            )}
+
+            {!imgLoaded && !imgError && (
+              <div className="absolute inset-0 flex items-center justify-center bg-[#050b08]/80 text-emerald-400 font-mono text-xs gap-2">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span>CALCULATING CHLOROPHYLL SPECTRAL RESPONSE...</span>
+              </div>
+            )}
 
             {/* NDVI Synthetic False-Color Shader Overlay */}
-            {selectedDisplay === 'ndvi' && (
+            {selectedDisplay === 'ndvi' && !imgError && (
               <div className="absolute inset-0 bg-gradient-to-tr from-emerald-900/60 via-amber-900/40 to-rose-900/50 mix-blend-color pointer-events-none" />
             )}
-            {selectedDisplay === 'loss' && (
+            {selectedDisplay === 'loss' && !imgError && (
               <div className="absolute inset-0 bg-rose-600/30 mix-blend-multiply pointer-events-none" />
             )}
 

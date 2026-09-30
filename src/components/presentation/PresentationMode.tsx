@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { RegionData } from '../../types/climate';
 import { ClimateRiskBadge } from '../common/ClimateRiskBadge';
+import { getAssetUrl, logImageError } from '../../lib/assetUrl';
 import {
   Globe2,
   X,
@@ -13,6 +14,8 @@ import {
   ArrowRight,
   Play,
   CheckCircle2,
+  AlertTriangle,
+  Loader2,
 } from 'lucide-react';
 
 interface PresentationModeProps {
@@ -197,17 +200,31 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({ region, onEx
           <div className="lg:col-span-7">
             <div className="relative rounded-2xl overflow-hidden border border-emerald-900/60 bg-[#07130d] h-[360px] lg:h-[440px] shadow-2xl">
               <img
-                src={
+                key={currentSlide}
+                src={getAssetUrl(
                   currentSlide === 0
                     ? region.opticalBeforeUrl
                     : currentSlide === 1
                     ? region.sarUrl
                     : region.opticalAfterUrl
-                }
+                )}
                 alt="Presentation Slide Imagery"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-opacity duration-300"
+                onError={(e) => {
+                  logImageError(
+                    'PresentationMode',
+                    getAssetUrl(
+                      currentSlide === 0
+                        ? region.opticalBeforeUrl
+                        : currentSlide === 1
+                        ? region.sarUrl
+                        : region.opticalAfterUrl
+                    ),
+                    e
+                  );
+                }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#040806] via-transparent to-transparent opacity-80" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#040806] via-transparent to-transparent opacity-80 pointer-events-none" />
 
               <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs font-mono text-slate-300 bg-[#050e09]/90 backdrop-blur-md p-3 rounded-lg border border-emerald-950">
                 <span>{region.name}</span>
